@@ -2,11 +2,13 @@
 
 function scandir() {
 	local cur_dir parent_dir workdir
-	workdir=$1
+	filetype=$1
+	workdir=$2
 	echo "*** Info: checking directory $workdir"
-	outputdir=$2
-	#echo "*** Info: output dir is $outputdir"
-	if [ $workdir == $outputdir ]
+	outputdir=$3
+	nowtimemilsec=$4
+	# echo "*** Info: output dir is $outputdir"
+	if [[ "$workdir" = "$outputdir" ]]
 	then
 		return
 	fi
@@ -21,14 +23,14 @@ function scandir() {
 	do
 		if test -d ${dirlist};then
 			cd ${dirlist}
-			scandir ${cur_dir}/${dirlist} $output
+			scandir $filetype ${cur_dir}/${dirlist} $output $nowtimemilsec
 			cd ..
 		else
 			# do something with the file here.
 			filename=${cur_dir}/${dirlist}
 			extension=`echo $dirlist|awk -F . '{print $NF}'`
 			#echo "extension="$extension
-			if [[ "$extension" == "txt" ]]
+			if [[ "$extension" = "$filetype" ]]
 			then
 				basename=`basename $filename .$extension`
 				#echo "basename="$basename
@@ -37,28 +39,36 @@ function scandir() {
 				#echo "origin file=$filename"
 				#echo "destination_file_name=${basename}${escapedfilepath}.${extension}"
 				#echo 'output folder='$output
-				cp $filename $output/${basename}${escapedfilepath}.${extension}
+				cp $filename ${output}_$nowtimemilsec/${basename}${escapedfilepath}.${extension}
 				echo "*** Info: Copying file $filename"
 			fi
 		fi	
 	done
 }
-folder=$1
-output=$2
-if [ ! -n "$1" ]
+filetype=$1
+if [ ! -n "$filetype" ]
+then
+	echo "*** Error: Please Specify a file type."
+	echo "***        Example: ./run jpg <working_dir> <output_dir>"
+	exit 1;
+fi
+folder=$2
+output=$3
+if [ ! -n "$folder" ]
 then
 	echo "*** Info: No working directory specified, work in current directory."
 	folder=$(pwd)
 fi	
-if [ ! -n "$2" ]
+if [ ! -n "$output" ]
 then
+	nowtimemilsec=`date +%s`
 	output=`echo $(pwd)/output`
-	echo "*** Info: No output directory specified, output to $output"
-	mkdir $output
+	echo "*** Info: No output directory specified, output to ${output}_$nowtimemilsec"
+	mkdir ${output}_$nowtimemilsec
 fi
 if test -d $folder
 	then
-	scandir $folder $output
+	scandir $filetype $folder $output $nowtimemilsec
 elif test -f $folder
 then
 	echo "*** Info: You input a file but not a directory,pls reinput and try again"
