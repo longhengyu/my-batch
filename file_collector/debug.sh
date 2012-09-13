@@ -7,9 +7,10 @@ function scandir() {
 	echo "*** Info: checking directory $workdir"
 	outputdir=$3
 	nowtimemilsec=$4
-	# echo "*** Info: output dir is $outputdir"
-	if [[ "$workdir" = "$outputdir" ]]
+	echo "*** Info: output dir is ${outputdir}_$nowtimemilsec"
+	if [[ "$workdir" = "${outputdir}_$nowtimemilsec" ]]
 	then
+		echo "*** Info: ignore output dir"
 		return
 	fi
 	cd ${workdir}

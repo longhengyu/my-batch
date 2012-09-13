@@ -7,8 +7,9 @@ function scandir() {
 	echo "*** Info: checking directory $workdir"
 	outputdir=$3
 	nowtimemilsec=$4
-	if [[ "$workdir" = "$outputdir" ]]
+	if [[ "$workdir" = "${outputdir}_$nowtimemilsec" ]]
 	then
+		echo "*** Info: ignore output dir"
 		return
 	fi
 	cd ${workdir}
@@ -25,6 +26,7 @@ function scandir() {
 			scandir $filetype ${cur_dir}/${dirlist} $output $nowtimemilsec
 			cd ..
 		else
+			# do something with the file here.
 			filename=${cur_dir}/${dirlist}
 			extension=`echo $dirlist|awk -F . '{print $NF}'`
 			if [[ "$extension" = "$filetype" ]]
